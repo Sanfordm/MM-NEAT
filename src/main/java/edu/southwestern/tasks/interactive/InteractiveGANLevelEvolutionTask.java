@@ -41,6 +41,9 @@ public abstract class InteractiveGANLevelEvolutionTask extends InteractiveEvolut
 	public static final int PLAY_BUTTON_INDEX = -20; 
 	private static final int FILE_LOADER_BUTTON_INDEX = -21;
 	private static final int VECTOR_EXPLORER_BUTTON_INDEX = -22;
+	private static final int DUNGEON_BUTTON_INDEX = -19;
+	private static final int DEFAULT_DUNGEON_SIZE = 10; //number of rooms in full dungeon
+	private static final boolean ROTATE_ROOMS = true; //rotate rooms for dungeon creation
 	
 	private static final int SLIDER_RANGE = 100; // Latent vector sliders (divide by this to get vector value)
 
@@ -80,6 +83,12 @@ public abstract class InteractiveGANLevelEvolutionTask extends InteractiveEvolut
 		play.setName("" + PLAY_BUTTON_INDEX);
 		play.addActionListener(this);
 		top.add(play);
+		
+		//Construction of button that adds in dungeon creation
+		JButton dungeon = new JButton("Dungeonize"); //No spaces allowed for button index parser --> see InteractiveEvolutionTask line 777
+		dungeon.setName("" + DUNGEON_BUTTON_INDEX);
+		dungeon.addActionListener(this);
+		top.add(dungeon);
 	}
 
 	@Override
@@ -130,6 +139,15 @@ public abstract class InteractiveGANLevelEvolutionTask extends InteractiveEvolut
 		boolean undo = super.respondToClick(itemID);
 		if(undo) return true; // Click must have been a bad activation checkbox choice. Skip rest
 		// Human plays level
+		if(itemID == DUNGEON_BUTTON_INDEX && selectedItems.size() > 0){
+			//arraylist of arraylist of phenotypes
+			ArrayList<ArrayList<Double>> phenotypes = new ArrayList<ArrayList<Double>>();
+			for(int i = 0; i < selectedItems.size(); i++) { //get all phenotypes of selecteditems for dungeon
+				ArrayList<Double> phenotype = scores.get(selectedItems.get(i)).individual.getPhenotype();
+				phenotypes.add(phenotype); //add to list
+			}
+			makePlayableDungeon(phenotypes, DEFAULT_DUNGEON_SIZE, ROTATE_ROOMS); //call dungeonizing code
+		}
 		if(itemID == PLAY_BUTTON_INDEX && selectedItems.size() > 0) {
 			ArrayList<Double> phenotype = scores.get(selectedItems.get(selectedItems.size() - 1)).individual.getPhenotype();
 			playLevel(phenotype);
@@ -236,7 +254,7 @@ public abstract class InteractiveGANLevelEvolutionTask extends InteractiveEvolut
 	public abstract Pair<Integer, Integer> resetAndReLaunchGAN(String model);
 	
 	/**
-	 * Where are GAN models for this particulay domain saved?
+	 * Where are GAN models for this particular domain saved?
 	 * @return
 	 */
 	public abstract String getGANModelDirectory();
@@ -246,6 +264,12 @@ public abstract class InteractiveGANLevelEvolutionTask extends InteractiveEvolut
 	 * @param phenotype Latent vector as array list
 	 */
 	public abstract void playLevel(ArrayList<Double> phenotype);
+	
+	/**
+	 * Create a dungeon padded by GAN rooms with selection
+	 * @param phenotype Latent vector as arrayList<arrayList> 
+	 */
+	public abstract void makePlayableDungeon(ArrayList<ArrayList<Double>> phenotypes, int dungeonSize, boolean rotate);
 
 	/**
 	 * Resize the vectors as a result of slider changes or changing the GAN model.
