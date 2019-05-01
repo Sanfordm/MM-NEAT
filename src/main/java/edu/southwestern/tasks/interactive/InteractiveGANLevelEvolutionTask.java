@@ -146,7 +146,7 @@ public abstract class InteractiveGANLevelEvolutionTask extends InteractiveEvolut
 				ArrayList<Double> phenotype = scores.get(selectedItems.get(i)).individual.getPhenotype();
 				phenotypes.add(phenotype); //add to list
 			}
-			makePlayableDungeon(phenotypes, DEFAULT_DUNGEON_SIZE, ROTATE_ROOMS); //call dungeonizing code
+			makeDungeon(phenotypes, DEFAULT_DUNGEON_SIZE, ROTATE_ROOMS); //call dungeonizing code
 		}
 		if(itemID == PLAY_BUTTON_INDEX && selectedItems.size() > 0) {
 			ArrayList<Double> phenotype = scores.get(selectedItems.get(selectedItems.size() - 1)).individual.getPhenotype();
@@ -269,7 +269,7 @@ public abstract class InteractiveGANLevelEvolutionTask extends InteractiveEvolut
 	 * Create a dungeon padded by GAN rooms with selection
 	 * @param phenotype Latent vector as arrayList<arrayList> 
 	 */
-	public abstract void makePlayableDungeon(ArrayList<ArrayList<Double>> phenotypes, int dungeonSize, boolean rotate);
+	public abstract void makeDungeon(ArrayList<ArrayList<Double>> phenotypes, int dungeonSize, boolean rotate);
 
 	/**
 	 * Resize the vectors as a result of slider changes or changing the GAN model.

@@ -241,6 +241,8 @@ public class Parameters {
 		integerOptions.add("hybrIDSwitchGeneration", 100, "Generation when HybrID should switch from HyperNEAT to NEAT");
 		integerOptions.add("hyperNEATNetworkDisplaySize", 600, "dimension of window for HyperNEAT's substrate network");
 		integerOptions.add("imageHeight", 256, "height of CPPN image (overrides height of image being matched if overrideImageSize is true)");
+		integerOptions.add("zeldaImageHeight", 256, "Zelda room height size");
+		integerOptions.add("ZeldaImageWidth", 128, "Zelda room width size");
 		integerOptions.add("imageSize", 256, "Size of image for Picbreeder");
 		integerOptions.add("imageWidth", 256, "width of CPPN image (overrides width of image being matched if overrideImageSize is true)");
 		integerOptions.add("initialMaze", 0, "Pacman maze to start on");

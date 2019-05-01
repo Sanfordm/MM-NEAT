@@ -42,6 +42,8 @@ public class ZeldaGANLevelBreederTask extends InteractiveGANLevelEvolutionTask {
 
 	private static final String GAME_FILE = "zelda";
 	private static final String FULL_GAME_FILE = LevelBreederTask.GAMES_PATH + GAME_FILE + ".txt";
+	private static final int ZELDA_HEIGHT = 256;//Parameters.parameters.integerParameter("zeldaImageHeight");
+	private static final int ZELDA_WIDTH = 176;//Parameters.parameters.integerParameter("zeldaImageWidth");
 
 	public ZeldaGANLevelBreederTask() throws IllegalAccessException {
 		super();
@@ -125,7 +127,8 @@ public class ZeldaGANLevelBreederTask extends InteractiveGANLevelEvolutionTask {
 	 * TODO: Documentation
 	 */
 	@Override
-	public void makePlayableDungeon(ArrayList<ArrayList<Double>> phenotypes, int numRooms, boolean rotate) {
+	public void makeDungeon(ArrayList<ArrayList<Double>> phenotypes, int numRooms, boolean rotate) {
+		
 		Node[][] table = new Node[numRooms][numRooms]; //map of rooms
 		Random r = new Random();
 		System.out.println("Start make dungeon");
@@ -189,26 +192,13 @@ public class ZeldaGANLevelBreederTask extends InteractiveGANLevelEvolutionTask {
 			}
 			
 		}
-		//populate jpanel
-//		for(int i = 0; i < phenotypes.size(); i++) {
-//			ArrayList<Double> phenotype = scores.get(i).individual.getPhenotype(); // gets individual room
-//			BufferedImage level = getButtonImage(false, phenotype, picSize,picSize, inputMultipliers); //creates image rep. of level)
-//			ImageIcon img = new ImageIcon(level.getScaledInstance(picSize,picSize,Image.SCALE_DEFAULT)); //creates image of level
-//			JLabel imageLabel = new JLabel(img); // places level on label
-//			roomGrid.add(imageLabel); //add label to panel
-//			//currently adds images to panel, in column, without correct display resolution...
-//		}
-		//populate panel with rooms
-		//pad rooms with evolutions
-		//post hoc (separate method)
-		//make playable?
 		System.out.println("actually making the dungeon?");
 		for(int i = 0; i < numRooms; i++) {
 			for(int j = 0; j < numRooms; j++) {
 				if(table[i][j] != null) {
 					Node n = table[i][j];
-					BufferedImage level = getButtonImage(false, n.data, picSize,picSize, inputMultipliers); //creates image rep. of level)
-					ImageIcon img = new ImageIcon(level.getScaledInstance(picSize,picSize,Image.SCALE_DEFAULT)); //creates image of level
+					BufferedImage level = getButtonImage(false, n.data, ZELDA_WIDTH, ZELDA_HEIGHT, inputMultipliers); //creates image rep. of level)
+					ImageIcon img = new ImageIcon(level.getScaledInstance(ZELDA_WIDTH, ZELDA_HEIGHT, Image.SCALE_DEFAULT)); //creates image of level
 					JLabel imageLabel = new JLabel(img); // places level on label
 					roomGrid.add(imageLabel); //add label to panel
 				}
