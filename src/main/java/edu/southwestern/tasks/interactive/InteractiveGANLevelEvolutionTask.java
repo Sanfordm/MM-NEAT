@@ -42,7 +42,7 @@ public abstract class InteractiveGANLevelEvolutionTask extends InteractiveEvolut
 	private static final int FILE_LOADER_BUTTON_INDEX = -21;
 	private static final int VECTOR_EXPLORER_BUTTON_INDEX = -22;
 	private static final int DUNGEON_BUTTON_INDEX = -19;
-	private static final int DEFAULT_DUNGEON_SIZE = 10; //number of rooms in full dungeon
+	private static final int DEFAULT_DUNGEON_SIZE = 5; //number of rooms in full dungeon
 	private static final boolean ROTATE_ROOMS = true; //rotate rooms for dungeon creation
 	
 	private static final int SLIDER_RANGE = 100; // Latent vector sliders (divide by this to get vector value)
