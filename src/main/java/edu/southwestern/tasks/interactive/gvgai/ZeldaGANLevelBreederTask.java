@@ -10,9 +10,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -42,14 +45,14 @@ import gvgai.tracks.singlePlayer.tools.human.Agent;
  * @author Jacob Schrum
  */
 public class ZeldaGANLevelBreederTask extends InteractiveGANLevelEvolutionTask {
-	
+
 	private static final String GAME_FILE = "zelda";
 	private static final String FULL_GAME_FILE = LevelBreederTask.GAMES_PATH + GAME_FILE + ".txt";
-	private static final int ZELDA_HEIGHT = (176/11)*16;//Parameters.parameters.integerParameter("zeldaImageHeight");
-	private static final int ZELDA_WIDTH = 176;//Parameters.parameters.integerParameter("zeldaImageWidth");
+	//	private static final int ZELDA_HEIGHT = (176/11)*16;//Parameters.parameters.integerParameter("zeldaImageHeight");
+	//	private static final int ZELDA_WIDTH = 176;//Parameters.parameters.integerParameter("zeldaImageWidth");
 	private static final int ZELDA_BLOCK_HEIGHT = 16; //TODO parameters
 	private static final int ZELDA_BLOCK_WIDTH = 11; //TODO parameters
-	private static int NUM_ROOMS;
+	//	private static int NUM_ROOMS;
 
 	public ZeldaGANLevelBreederTask() throws IllegalAccessException {
 		super();
@@ -128,22 +131,26 @@ public class ZeldaGANLevelBreederTask extends InteractiveGANLevelEvolutionTask {
 			}
 		}.start();
 	}
-	
+
 	/*
-	 * TODO: Documentation
+	 * Takes a selection of rooms from the GAN generation, parses the phenotypes into a grand
+	 * string[] and makes the dungeon playable.
+	 * @param ArrayList<ArrayList<Double>> phenotypes
+	 * @param int overallDugeonDimension --> int^2
+	 * @param boolean rotate [not implemented]
 	 */
 	@Override
 	public void makeDungeon(ArrayList<ArrayList<Double>> phenotypes, int numRooms, boolean rotate) {
-		NUM_ROOMS = numRooms;
+		//		NUM_ROOMS = numRooms;
 		Node[][] table = new Node[numRooms][numRooms]; //map of rooms
 		Random r = new Random();
 		System.out.println("Start make dungeon");
 		//make panel
 		System.out.println("Spawn Frame");
-		JFrame dungeon = new JFrame("ZeldaGAN Full Dungeon"); 
+		//		JFrame dungeon = new JFrame("ZeldaGAN Full Dungeon"); 
 		JPanel roomGrid = new JPanel();
 		roomGrid.setLayout(new GridLayout(numRooms, numRooms)); //row, col
-		
+
 		//populate grid
 		System.out.println("populating grid with rooms");
 		ArrayList<Node> placed = new ArrayList(); //list of all rooms placed on map
@@ -196,82 +203,96 @@ public class ZeldaGANLevelBreederTask extends InteractiveGANLevelEvolutionTask {
 				placed.remove(placed.indexOf(anchor));
 				i--;
 			}
-			
+
 		}
-//		System.out.println("actually making the dungeon?");
-//		for(int i = 0; i < numRooms; i++) {
-//			for(int j = 0; j < numRooms; j++) {
-//				if(table[i][j] != null) {
-//					Node n = table[i][j];
-//					BufferedImage level = getButtonImage(false, n.data, ZELDA_WIDTH, ZELDA_HEIGHT, inputMultipliers); //creates image rep. of level)
-//					ImageIcon img = new ImageIcon(level.getScaledInstance(ZELDA_WIDTH, ZELDA_HEIGHT, Image.SCALE_DEFAULT)); //creates image of level
-//					JLabel imageLabel = new JLabel(img); // places level on label
-//					roomGrid.add(imageLabel); //add label to panel
-//				}
-//				else {
-//					//make it black
-//					JLabel blankText = new JLabel("Ignore pls");
-//					blankText.setForeground(Color.WHITE);
-//					JPanel blankBack = new JPanel();
-//					blankBack.setBackground(Color.BLACK);
-//					blankBack.add(blankText);
-//					roomGrid.add(blankBack);
-//				}
-//				
-//			}
-//		}
-		
+		//		System.out.println("actually making the dungeon?");
+		//		for(int i = 0; i < numRooms; i++) {
+		//			for(int j = 0; j < numRooms; j++) {
+		//				if(table[i][j] != null) {
+		//					Node n = table[i][j];
+		//					BufferedImage level = getButtonImage(false, n.data, ZELDA_WIDTH, ZELDA_HEIGHT, inputMultipliers); //creates image rep. of level)
+		//					ImageIcon img = new ImageIcon(level.getScaledInstance(ZELDA_WIDTH, ZELDA_HEIGHT, Image.SCALE_DEFAULT)); //creates image of level
+		//					JLabel imageLabel = new JLabel(img); // places level on label
+		//					roomGrid.add(imageLabel); //add label to panel
+		//				}
+		//				else {
+		//					//make it black
+		//					JLabel blankText = new JLabel("Ignore pls");
+		//					blankText.setForeground(Color.WHITE);
+		//					JPanel blankBack = new JPanel();
+		//					blankBack.setBackground(Color.BLACK);
+		//					blankBack.add(blankText);
+		//					roomGrid.add(blankBack);
+		//				}
+		//				
+		//			}
+		//		}
+
 		System.out.println("making the dungeon pt 2 electric boogaloo");
 		char[][] levelPhenotypeRepImage = new char[numRooms*ZELDA_BLOCK_HEIGHT][ZELDA_BLOCK_WIDTH*numRooms];
 		String[] dungeonLevel = new String[numRooms*ZELDA_BLOCK_HEIGHT];
 		for(int i = 0; i < numRooms; i++) {
 			for(int j = 0; j < numRooms; j++) {
-//				System.out.format("current iteration %d, %d\nNode at position: %b\n", i, j, table[i][j] != null);
+				//				System.out.format("current iteration %d, %d\nNode at position: %b\n", i, j, table[i][j] != null);
 				if(table[i][j] != null) { //room exists
 					Node n = table[i][j];
 					double[] latentVector = ArrayUtil.doubleArrayFromList(n.data); // convert to latent vector
 					String[] level = ZeldaGANUtil.generateGVGAILevelFromGAN(latentVector, new Point(8,8)); //convert to phenotype array representation
-					
-//					for(String s : level) {
-//						System.out.println(s);
-//					}
-//					MiscUtil.waitForReadStringAndEnterKeyPress();
-					
-//					System.out.println(ZELDA_BLOCK_HEIGHT + ":" + level.length);
-//					System.out.println(ZELDA_BLOCK_WIDTH + ":" + level[0].toCharArray().length);
-//					if(true) System.exit(1);
-					
+
+					//					for(String s : level) {
+					//						System.out.println(s);
+					//					}
+					//					MiscUtil.waitForReadStringAndEnterKeyPress();
+
+					//					System.out.println(ZELDA_BLOCK_HEIGHT + ":" + level.length);
+					//					System.out.println(ZELDA_BLOCK_WIDTH + ":" + level[0].toCharArray().length);
+					//					if(true) System.exit(1);
+
 					for(int k = 0; k < level.length; k++) {
 						char[] hold = level[k].toCharArray();
 						for(int l = 0; l < hold.length; l++) { //height
 							//iterate through row, add to bigger 2d array
-//							System.out.format("Frame in room loc. = %d, %d\n", k, l);
+							//							System.out.format("Frame in room loc. = %d, %d\n", k, l);
 							levelPhenotypeRepImage[k + (ZELDA_BLOCK_HEIGHT * i)][l+ (ZELDA_BLOCK_WIDTH * j)] = hold[l];
 						}
 					}
 				}else { //blank space, default to '.'
 					for(int k = ZELDA_BLOCK_HEIGHT * i; k < ZELDA_BLOCK_HEIGHT*i + ZELDA_BLOCK_HEIGHT; k++) { //width
 						for(int l = ZELDA_BLOCK_WIDTH * j; l < ZELDA_BLOCK_WIDTH*j + ZELDA_BLOCK_WIDTH; l++) { //height
-//							System.out.format("Frame in padding loc. = %d, %d\n", k, l);
+							//							System.out.format("Frame in padding loc. = %d, %d\n", k, l);
 							levelPhenotypeRepImage[k][l] = '.';
 						}
 					}
 				}
-//				for(char[] c : levelPhenotypeRepImage) {
-//					System.out.println(Arrays.toString(c));
-//				}
-//				MiscUtil.waitForReadStringAndEnterKeyPress();
+				//				for(char[] c : levelPhenotypeRepImage) {
+				//					System.out.println(Arrays.toString(c));
+				//				}
+				//				MiscUtil.waitForReadStringAndEnterKeyPress();
 			}
 		}
-		
+
 		System.out.println("char[][] fully filled");
-		
-//		for(char[] c : levelPhenotypeRepImage) {
-//			System.out.println(Arrays.toString(c));
-//		}
-		
-		levelPhenotypeRepImage = postHocDungeonizing(levelPhenotypeRepImage, rotate);
-		
+
+		//		for(char[] c : levelPhenotypeRepImage) {
+		//			System.out.println(Arrays.toString(c));
+		//		}
+
+		//		levelPhenotypeRepImage = postHocDungeonizing(levelPhenotypeRepImage, rotate);
+
+		//		for(char[] c : levelPhenotypeRepImage) {
+		//			System.out.println(Arrays.toString(c));
+		//		}
+
+
+		//		if(rotate) {
+		//		for(int i = 0; i < numRooms*ZELDA_BLOCK_WIDTH; i++) {
+		//			String hold = "";
+		//			for(int j = 0; j < numRooms*ZELDA_BLOCK_HEIGHT; j++) {
+		//				hold = hold.concat(""+levelPhenotypeRepImage[i][j]);
+		//			}
+		//			dungeonLevel[i] = hold;
+		//		}
+		////		}else {
 		//convert char[][] to string[] of string rep. arrays
 		for(int i = 0; i < numRooms*ZELDA_BLOCK_HEIGHT; i++) {
 			String hold = "";
@@ -280,54 +301,79 @@ public class ZeldaGANLevelBreederTask extends InteractiveGANLevelEvolutionTask {
 			}
 			dungeonLevel[i] = hold;
 		}
-		
+		//		}
+
 		System.out.println("String[] fully filled");
 
-		for(String str : dungeonLevel) {
-			System.out.println(str);
-		}
-		
+		//		for(String str : dungeonLevel) {
+		//			System.out.println(str);
+		//		}
+
 		Agent agent = new Agent();
 		agent.setup(null, 0, true);
 		Game game = new VGDLParser().parseGame(FULL_GAME_FILE);
 		GameBundle bundle = new GameBundle(game, dungeonLevel, agent, 0, 0);
-		
-//		BufferedImage levelImage = GVGAIUtil.getLevelImage(((BasicGame) bundle.game), bundle.level, (Agent) bundle.agent, ZELDA_WIDTH*numRooms, ZELDA_HEIGHT*numRooms, bundle.randomSeed);
-//		ImageIcon img = new ImageIcon(levelImage.getScaledInstance(ZELDA_WIDTH*numRooms, ZELDA_HEIGHT*numRooms, Image.SCALE_DEFAULT));
-//		JLabel imageLabel = new JLabel(img);
-//		JPanel dungeonPanel = new JPanel();
-//		dungeonPanel.add(imageLabel);
-		
+
+		//		BufferedImage levelImage = GVGAIUtil.getLevelImage(((BasicGame) bundle.game), bundle.level, (Agent) bundle.agent, ZELDA_WIDTH*numRooms, ZELDA_HEIGHT*numRooms, bundle.randomSeed);
+		//		ImageIcon img = new ImageIcon(levelImage.getScaledInstance(ZELDA_WIDTH*numRooms, ZELDA_HEIGHT*numRooms, Image.SCALE_DEFAULT));
+		//		JLabel imageLabel = new JLabel(img);
+		//		JPanel dungeonPanel = new JPanel();
+		//		dungeonPanel.add(imageLabel);
+
 		new Thread() {
 			public void run() {
 				// True is to watch the game being played
 				GVGAIUtil.runOneGame(bundle, true);
 			}
 		}.start();
-		
-//		dungeon.setSize(new Dimension(ZELDA_WIDTH * numRooms, ZELDA_HEIGHT * numRooms));
-////		dungeon.add(roomGrid);
-//		dungeon.add(dungeonPanel);
-//		dungeon.setVisible(true);
+
+		//		dungeon.setSize(new Dimension(ZELDA_WIDTH * numRooms, ZELDA_HEIGHT * numRooms));
+		////		dungeon.add(roomGrid);
+		//		dungeon.add(dungeonPanel);
+		//		dungeon.setVisible(true);
 	};
-	
+
+	/*
+	 * Post hoc cleaning of 2d char array. Removes doors to connect rooms and handles
+	 * rotation to orient dungeon like original game.
+	 * NOTE: removing doors breaks game, defaults to win condition
+	 * NOTE: rotation unavailable, play method (not our code) dependent on certain dimensions
+	 * @param char[][] of representation of level
+	 * @param boolean rotate to rotate or not to rotate?
+	 */
 	private char[][] postHocDungeonizing(char[][] arr, boolean rotate){
-		for(int i = 0; i < NUM_ROOMS; i++) {
-			for(int j = 0; j < NUM_ROOMS; j++) {
-				if(arr[i][j] == 'g') {
-					int k = j + 1;
-					int l = i + 1;
-					//bfs?
-					
-				}
-			}
-		}
-		//iterate through, look for gate, check in line to next gate, if found demo
-		//longest pathing?
-		//rotate
+		//		for(int i = 0; i < NUM_ROOMS*ZELDA_BLOCK_HEIGHT; i++) {
+		//			for(int j = 0; j < NUM_ROOMS*ZELDA_BLOCK_WIDTH; j++) {
+		//				int startIndex = j;
+		//				if(arr[i][j] == 'g') {
+		//					int endIndex = startIndex + 1;
+		//					boolean foundGate = false;
+		//					while(endIndex <= startIndex + 3 && !foundGate) {
+		//						if(arr[i][endIndex] == 'g') {
+		//							foundGate = true;
+		//						}
+		//						endIndex++;
+		//					}
+		//					for(int k = startIndex; k <= endIndex; k++) {
+		//						arr[i][k] = '.';
+		//					}
+		//				}
+		//			}
+		//		}
+		//		if(rotate) {
+		//			int rowNum = arr.length;
+		//			int colNum = arr[0].length;
+		//			char[][] temp = new char[colNum][rowNum];
+		//			for(int i =0; i<colNum; i++){
+		//				for(int j=0; j<rowNum; j++){
+		//					temp[i][j] = arr[rowNum-j-1][i];
+		//				}
+		//			}
+		//			arr = temp;
+		//		}
 		return arr;
 	}
-	
+
 	/*
 	 * Private class for dungeon tracking. Provides parameter data to track
 	 * the location in a dungeon grid, its neighbor rooms, and phenotype
@@ -345,7 +391,7 @@ public class ZeldaGANLevelBreederTask extends InteractiveGANLevelEvolutionTask {
 		private int numNeighbors = 1;
 		protected int X;
 		protected int Y;
-		
+
 		public Node(int x, int y, Node origin, ArrayList<Double> d) {
 			this.X = x;
 			this.Y = y;
